@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import com.andreste.whop.models.WhopNotification
 import com.andreste.whop.viewmodels.NotificationsViewModel
 import com.andreste.whop.viewmodels.ViewState
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: NotificationsViewModel) {
@@ -58,7 +59,7 @@ fun HomeScreen(navController: NavController, viewModel: NotificationsViewModel) 
                             .fillMaxWidth()
                     ) {
                         items(state.list) {
-                            NotificationRow(it)
+                            NotificationRow(it, viewModel)
                         }
                     }
                 }
@@ -92,7 +93,15 @@ fun HomeScreen(navController: NavController, viewModel: NotificationsViewModel) 
 }
 
 @Composable
-fun NotificationRow(notification: WhopNotification) {
+fun NotificationRow(notification: WhopNotification, viewModel: NotificationsViewModel) {
+
+    LaunchedEffect(notification) {
+        if (!notification.read) {
+            delay(3000) // 3 seconds delay
+            viewModel.markAsRead(notification) // Mark as read after 3 seconds
+        }
+    }
+
     Row(
         modifier = Modifier
             .padding(8.dp)
@@ -133,10 +142,4 @@ fun NotificationRow(notification: WhopNotification) {
             .height(1.dp)
             .background(Color.Gray)
     )
-}
-
-@Preview
-@Composable
-fun NotificationRowPreview() {
-    NotificationRow(notification = WhopNotification(id = "1", title = "Title", message = "Message", read = false, timestamp = "timestamp"))
 }

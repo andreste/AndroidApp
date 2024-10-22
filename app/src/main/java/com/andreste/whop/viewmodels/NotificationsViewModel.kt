@@ -44,4 +44,16 @@ class NotificationsViewModel @Inject constructor(
             }
         }
     }
+
+    fun markAsRead(notification: WhopNotification) {
+        viewModelScope.launch {
+            val currentState = _state.value
+            if (currentState is ViewState.Content) {
+                val updatedList = currentState.list.map {
+                    if (it.id == notification.id) it.copy(read = true) else it
+                }
+                _state.value = ViewState.Content(updatedList)
+            }
+        }
+    }
 }
