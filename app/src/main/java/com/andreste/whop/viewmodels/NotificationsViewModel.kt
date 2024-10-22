@@ -6,10 +6,12 @@ import androidx.navigation.NavController
 import com.andreste.whop.models.WhopNotification
 import com.andreste.whop.repositories.NotificationsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 sealed class ViewState {
     data object Loading : ViewState()
@@ -37,7 +39,11 @@ class NotificationsViewModel @Inject constructor(
             val response = notificationsRepository.getNotifications()
             if (response.isSuccessful) {
                 response.body()?.let {
-                    _state.value = ViewState.Content(it)
+                    val remainingNotifications = it.drop(40)
+                    val initialNotifications = it.take(40)
+
+                    _state.value = ViewState.Content(initialNotifications)
+                    addNotificationsSporadically(remainingNotifications)
                 }
             } else {
                 _state.value = ViewState.Error("Could not get notifications")
@@ -53,6 +59,20 @@ class NotificationsViewModel @Inject constructor(
                     if (it.id == notification.id) it.copy(read = true) else it
                 }
                 _state.value = ViewState.Content(updatedList)
+            }
+        }
+    }
+
+    private fun addNotificationsSporadically(remainingNotifications: List<WhopNotification>) {
+        viewModelScope.launch {
+            for (notification in remainingNotifications) {
+                val randomDelay = Random.nextLong(5000, 15000)
+                delay(randomDelay)
+                val currentState = _state.value
+                if (currentState is ViewState.Content) {
+                    val updatedList = listOf(notification) + currentState.list
+                    _state.value = ViewState.Content(updatedList)
+                }
             }
         }
     }
