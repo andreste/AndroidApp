@@ -28,3 +28,6 @@ for serializing the json response.
 * It took me the 2 hours to work on this because I felt like creating a solid foundation to keep
 building on. This project is using MVVM, a good files organization, Hilt for DI, Retrofit and Coroutines 
 for the network call and Jetpack Compose. I believe this is a good foundation for a solid new Android app.
+
+# Future improvements
+* The PUT calls are not being made right now because it was not clear what to send or what to expect as a response, but that is something that would be easy to implement. The UI is not looking great right now. And the button to mark all of them as unread is also not there yet
